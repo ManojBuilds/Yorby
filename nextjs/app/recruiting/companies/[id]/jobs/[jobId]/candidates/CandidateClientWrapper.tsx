@@ -34,7 +34,7 @@ const candidatesFetcher = async ([_, companyId, jobId, stageIds, offset]: [
   string[] | undefined,
   number,
 ]) => {
-  return await getCandidates(companyId, jobId, offset, 10, stageIds);
+  return await getCandidates(companyId, jobId, offset, 50, stageIds);
 };
 
 const candidateBasicDataFetcher = async ([_, candidateId]: [

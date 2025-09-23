@@ -2,10 +2,8 @@
 
 import useSWR, { mutate } from "swr";
 import useSWRInfinite from "swr/infinite";
-import { Suspense } from "react";
 import {
   Candidate,
-  CandidateData,
   CandidateBasicData,
   CandidateImportantData,
   CandidateInterviewData,
@@ -19,9 +17,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { useTranslations } from "next-intl";
 import CandidatesList from "./CandidatesList";
-import CandidateOverviewSkeleton from "./CandidateOverviewSkeleton";
 import CandidateOverview from "./CandidateOverview";
-import EmptyState from "./EmptyState";
 import {
   CandidateStageProvider,
   useCandidateStage,
@@ -34,7 +30,7 @@ const candidatesFetcher = async ([_, companyId, jobId, stageIds, offset]: [
   string[] | undefined,
   number,
 ]) => {
-  return await getCandidates(companyId, jobId, offset, 50, stageIds);
+  return await getCandidates(companyId, jobId, offset, 11, stageIds);
 };
 
 const candidateBasicDataFetcher = async ([_, candidateId]: [

@@ -6,10 +6,11 @@ import { useTranslations } from "next-intl";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { SubmitButton } from "@/components/submit-button";
-import { useActionState, useState, useEffect } from "react";
+import { useActionState, useState, useEffect, useRef } from "react";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { useMultiTenant } from "@/app/context/MultiTenantContext";
 import { Button } from "@/components/ui/button";
+import OneTimeCode from "@/components/auth/one-time-code";
 
 interface SignInFormProps {
   redirectUrl?: string;
@@ -38,6 +39,7 @@ export default function SignInForm({ redirectUrl }: SignInFormProps = {}) {
 
   const [captchaToken, setCaptchaToken] = useState<string>("");
   const { isYorbyCoaching } = useMultiTenant();
+  const otpFormRef = useRef<HTMLFormElement>(null);
 
   // Determine which form message to show based on current phase
   let formMessage: Message | undefined;
@@ -107,7 +109,12 @@ export default function SignInForm({ redirectUrl }: SignInFormProps = {}) {
         </form>
       ) : (
         // OTP verification form
-        <form action={otpAction} className="space-y-6" data-phase="otp">
+        <form
+          ref={otpFormRef}
+          action={otpAction}
+          className="space-y-6"
+          data-phase="otp"
+        >
           <div className="space-y-2 text-center">
             <h2 className="text-2xl font-bold text-foreground">
               Enter verification code
@@ -118,21 +125,14 @@ export default function SignInForm({ redirectUrl }: SignInFormProps = {}) {
           </div>
 
           <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="token">{signInT("otp.label")}</Label>
-              <Input
-                id="token"
-                name="token"
-                type="text"
-                placeholder={signInT("otp.placeholder")}
-                required
-                className="bg-background text-center text-2xl tracking-wider"
-                maxLength={6}
-                pattern="[0-9]{6}"
-                autoComplete="one-time-code"
-                autoFocus
-              />
-            </div>
+            <OneTimeCode
+              className="items-center"
+              onComplete={(value) => {
+                if (value.length === 6 && otpFormRef.current) {
+                  otpFormRef.current.requestSubmit();
+                }
+              }}
+            />
             <input type="hidden" name="email" value={emailState.email} />
             <input
               type="hidden"

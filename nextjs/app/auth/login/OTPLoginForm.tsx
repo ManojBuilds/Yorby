@@ -17,6 +17,7 @@ import { useActionState, useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { signInWithOTP, verifyOTP } from "./actions";
+import OneTimeCode from "@/components/auth/one-time-code";
 
 type AuthPhase = "email" | "otp";
 
@@ -127,18 +128,7 @@ export default function OTPLoginForm({
                   <Label htmlFor="token">
                     {t("otp.verificationCodeLabel")}
                   </Label>
-                  <Input
-                    id="token"
-                    name="token"
-                    type="text"
-                    placeholder={t("otp.verificationCodePlaceholder")}
-                    required
-                    className="text-center text-2xl tracking-wider"
-                    maxLength={6}
-                    pattern="[0-9]{6}"
-                    autoComplete="one-time-code"
-                    autoFocus
-                  />
+                  <OneTimeCode />
                 </div>
                 {errorMessage && (
                   <p className="text-sm text-red-500">{errorMessage}</p>

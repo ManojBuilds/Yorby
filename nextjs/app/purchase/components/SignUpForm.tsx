@@ -8,8 +8,9 @@ import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import { Label } from "@/components/ui/label";
 import { Turnstile } from "@marsidev/react-turnstile";
-import { useActionState, useState, useEffect } from "react";
+import { useActionState, useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
+import OneTimeCode from "@/components/auth/one-time-code";
 
 type AuthPhase = "email" | "otp";
 
@@ -33,6 +34,7 @@ export default function SignUpForm() {
   const [otpState, otpAction, otpPending] = useActionState(verifyOTP, {
     error: "",
   });
+  const otpFormRef = useRef<HTMLFormElement>(null);
 
   const [captchaToken, setCaptchaToken] = useState<string>("");
 
@@ -112,20 +114,15 @@ export default function SignUpForm() {
             </p>
           </div>
 
-          <form action={otpAction} className="space-y-4" data-phase="otp">
-            <div className="space-y-2">
-              <Label htmlFor="token">{authT("otp.label")}</Label>
-              <Input
-                id="token"
-                name="token"
-                type="text"
-                placeholder={authT("otp.placeholder")}
-                required
-                className="bg-background text-center text-2xl tracking-wider"
-                maxLength={6}
-                pattern="[0-9]{6}"
-                autoComplete="one-time-code"
-                autoFocus
+          <form action={otpAction} ref={otpFormRef} className="space-y-4" data-phase="otp"
+          >
+            <div className="flex flex-col items-center">
+              <OneTimeCode
+                onComplete={(value) => {
+                  if (value.length === 6 && otpFormRef.current) {
+                    otpFormRef.current.requestSubmit();
+                  }
+                }}
               />
             </div>
             <input type="hidden" name="email" value={emailState.email} />

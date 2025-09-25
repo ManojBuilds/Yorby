@@ -22,6 +22,7 @@ import Link from "next/link";
 import { User } from "@supabase/supabase-js";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import OneTimeCode from "@/components/auth/one-time-code";
 
 interface EmailVerificationComponentProps {
   companyName: string;
@@ -103,18 +104,7 @@ export default function EmailVerificationComponent({
               <Label htmlFor="token">
                 {tAuth("otp.verificationCodeLabel")}
               </Label>
-              <Input
-                id="token"
-                name="token"
-                type="text"
-                placeholder={tAuth("otp.verificationCodePlaceholder")}
-                required
-                className="text-center text-2xl tracking-wider"
-                maxLength={6}
-                pattern="[0-9]{6}"
-                autoComplete="one-time-code"
-                autoFocus
-              />
+              <OneTimeCode />
             </div>
             {otpState.error && (
               <p className="text-sm text-red-500">{otpState.error}</p>

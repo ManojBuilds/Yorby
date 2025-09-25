@@ -11,6 +11,7 @@ import { Turnstile } from "@marsidev/react-turnstile";
 import { signInWithOTP, verifyOTP } from "../../(candidate-auth-pages)/actions";
 import { usePostHog } from "posthog-js/react";
 import { Button } from "@/components/ui/button";
+import OneTimeCode from "@/components/auth/one-time-code";
 
 type AuthPhase = "email" | "otp";
 
@@ -18,7 +19,7 @@ export default function SignInForm() {
   const signInT = useTranslations("signIn");
   const authT = useTranslations("auth.candidateAuth");
   const [phase, setPhase] = useState<AuthPhase>("email");
-  
+
   // State for email submission
   const [emailState, emailAction, emailPending] = useActionState(
     signInWithOTP,
@@ -33,12 +34,12 @@ export default function SignInForm() {
   const [otpState, otpAction, otpPending] = useActionState(verifyOTP, {
     error: "",
   });
-  
+
   const [captchaToken, setCaptchaToken] = useState<string>("");
   const posthog = usePostHog();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  
+
   // Determine which form message to show based on current phase
   let formMessage: Message | undefined;
   if (phase === "email") {
@@ -130,18 +131,7 @@ export default function SignInForm() {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="token">{authT("otp.label")}</Label>
-              <Input
-                id="token"
-                name="token"
-                type="text"
-                placeholder={authT("otp.placeholder")}
-                required
-                className="bg-background text-center text-2xl tracking-wider"
-                maxLength={6}
-                pattern="[0-9]{6}"
-                autoComplete="one-time-code"
-                autoFocus
-              />
+              <OneTimeCode />
             </div>
             <input type="hidden" name="email" value={emailState.email} />
             <input type="hidden" name="redirectTo" value="/onboarding" />

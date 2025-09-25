@@ -6,11 +6,12 @@ import { useTranslations } from "next-intl";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { SubmitButton } from "@/components/submit-button";
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { signInWithOTP, verifyOTP } from "@/app/(candidate-auth-pages)/actions";
 import { usePostHog } from "posthog-js/react";
 import { Button } from "@/components/ui/button";
+import OneTimeCode from "@/components/auth/one-time-code";
 
 type AuthPhase = "email" | "otp";
 
@@ -24,7 +25,7 @@ export default function CoachSignInForm({
   const signInT = useTranslations("signIn");
   const authT = useTranslations("auth.candidateAuth");
   const [phase, setPhase] = useState<AuthPhase>("email");
-  
+
   // State for email submission
   const [emailState, emailAction, emailPending] = useActionState(
     signInWithOTP,
@@ -39,12 +40,13 @@ export default function CoachSignInForm({
   const [otpState, otpAction, otpPending] = useActionState(verifyOTP, {
     error: "",
   });
-  
+  const otpFormRef = useRef<HTMLFormElement>(null);
+
   const [captchaToken, setCaptchaToken] = useState<string>("");
   const posthog = usePostHog();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  
+
   // Determine which form message to show based on current phase
   let formMessage: Message | undefined;
   if (phase === "email") {
@@ -124,7 +126,8 @@ export default function CoachSignInForm({
         </form>
       ) : (
         // OTP verification form
-        <form action={otpAction} className="space-y-4 sm:space-y-6" data-phase="otp">
+        <form action={otpAction} className="space-y-4 sm:space-y-6" data-phase="otp" ref={otpFormRef}
+        >
           <div className="space-y-2 text-center">
             <h2 className="text-xl sm:text-2xl font-bold text-foreground">
               {authT("otp.title", { defaultValue: "Enter verification code" })}
@@ -137,17 +140,12 @@ export default function CoachSignInForm({
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="token">{authT("otp.label")}</Label>
-              <Input
-                id="token"
-                name="token"
-                type="text"
-                placeholder={authT("otp.placeholder")}
-                required
-                className="bg-background text-center text-2xl tracking-wider"
-                maxLength={6}
-                pattern="[0-9]{6}"
-                autoComplete="one-time-code"
-                autoFocus
+              <OneTimeCode
+                onComplete={(value) => {
+                  if (value.length === 6 && otpFormRef.current) {
+                    otpFormRef.current.requestSubmit();
+                  }
+                }}
               />
             </div>
             <input type="hidden" name="email" value={emailState.email} />

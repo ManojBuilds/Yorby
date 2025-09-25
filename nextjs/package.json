@@ -69,6 +69,7 @@
     "date-fns": "^4.1.0",
     "framer-motion": "^12.4.3",
     "html2pdf.js": "^0.10.3",
+    "input-otp": "^1.4.2",
     "livekit-client": "^2.15.2",
     "livekit-server-sdk": "^2.13.1",
     "lodash": "^4.17.21",

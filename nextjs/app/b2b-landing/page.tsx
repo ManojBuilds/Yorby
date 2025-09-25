@@ -99,7 +99,7 @@ const Navigation = () => {
               className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
             >
               <GithubIcon className="w-4 h-4" />
-              Open Source
+              <span className="hidden sm:inline-flex">Open Source</span>
             </Link>
             <Link href="/auth/login">
               <Button className="bg-blue-600 hover:bg-blue-700">
@@ -936,7 +936,7 @@ const FinalCTA = () => {
             <Link href="/auth/login">
               <Button
                 size="lg"
-                className="px-8 py-4 text-lg bg-blue-600 hover:bg-blue-700"
+                className="w-full px-8 py-4 text-lg bg-blue-600 hover:bg-blue-700"
               >
                 Start with free ATS
                 <ArrowRight className="ml-2 w-5 h-5" />
@@ -946,7 +946,7 @@ const FinalCTA = () => {
               <Button
                 variant="outline"
                 size="lg"
-                className="px-8 py-4 text-lg border-gray-600 text-gray-300 hover:bg-gray-800"
+                className="px-8 py-4 text-lg border-gray-300 hover:bg-gray-50"
               >
                 <Play className="mr-2 w-5 h-5" />
                 Watch demo

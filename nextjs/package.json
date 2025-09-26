@@ -86,6 +86,7 @@
     "raf": "^3.4.1",
     "react": "19.0.0",
     "react-dom": "19.0.0",
+    "react-dropzone": "^14.3.8",
     "react-hook-form": "^7.56.4",
     "react-markdown": "^9.0.3",
     "react-social-media-embed": "^2.5.18",

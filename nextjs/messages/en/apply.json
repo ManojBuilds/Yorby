@@ -56,6 +56,7 @@
     "documentSelection": {
       "title": "Resume, Cover Letter, and Other Documents",
       "description": "Choose up to 5 documents to include with your application. You can select from existing files or upload new ones. You can upload documents in PDF, TXT, PNG, or JPG.",
+      "dragAndDrop": "Drag & drop your documents here",
       "maxFilesError": "You can select up to 5 files",
       "noFilesError": "Please select at least one file",
       "noDocuments": "No documents uploaded yet. Upload your resume and other documents to apply.",
@@ -1091,4 +1092,4 @@
       "subtext": "(Sometimes faster if we're procrastinating on other work)"
     }
   }
-} 
+}

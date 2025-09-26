@@ -29,6 +29,8 @@ import { submitApplication } from "../actions";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { isMobileDevice } from "@/utils/browser";
 import Image from "next/image";
+import Dropzone from "react-dropzone";
+import { cn } from "@/lib/utils";
 
 type UserFile = Database["public"]["Tables"]["user_files"]["Row"];
 type Company = Database["public"]["Tables"]["companies"]["Row"];
@@ -95,8 +97,7 @@ export function ApplicationForm({
 
   const allSelectedCount = selectedFiles.size + localFiles.length;
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
+  const handleFileUpload = (files: File[]) => {
     if (!files || files.length === 0) return;
 
     const newFiles = Array.from(files);
@@ -310,127 +311,135 @@ export function ApplicationForm({
                     {t("applicationForm.documentSelection.description")}
                   </p>
                 </div>
-
-                {/* Upload new files section */}
-                <div className="flex items-center justify-between">
-                  <div>
-                    <input
-                      type="file"
-                      id="file-upload"
-                      className="hidden"
-                      multiple
-                      accept=".pdf,.txt,.png,.jpg,.jpeg"
-                      onChange={handleFileUpload}
-                    />
-                    <label htmlFor="file-upload">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="cursor-pointer"
-                        asChild
+                <Dropzone
+                  onDrop={handleFileUpload}
+                  accept={{
+                    "application/pdf": [".pdf"],
+                    "text/plain": [".txt"],
+                    "image/png": [".png"],
+                    "image/jpeg": [".jpg", ".jpeg"],
+                  }}
+                  maxFiles={5}
+                >
+                  {({ getInputProps, getRootProps, isDragActive }) => (
+                    <div {...getRootProps()} className="relative space-y-4">
+                      {/* Upload new files section */}
+                      <input {...getInputProps()} />
+                      <div
+                        className={cn(
+                          "absolute inset-0 rounded-md flex flex-col items-center justify-center bg-secondary text-gray-500 border border-dashed border-primary opacity-0 transition-opacity -z-10",
+                          isDragActive && "opacity-100 z-10",
+                        )}
                       >
-                        <span>
-                          <Upload className="h-4 w-4 mr-2" />
-                          {t("applicationForm.buttons.selectFiles")}
-                        </span>
-                      </Button>
-                    </label>
-                  </div>
-                </div>
+                        <Upload />
+                        <p className="text-sm text-center">{t("applicationForm.documentSelection.dragAndDrop")}</p>
+                      </div>
 
-                {/* Files list - both existing and local */}
-                {(userFiles.length > 0 || localFiles.length > 0) && (
-                  <div className="space-y-2">
-                    <div className="grid gap-2">
-                      {/* Previously uploaded files */}
-                      {userFiles.map((file) => (
-                        <div
-                          key={file.id}
-                          onClick={() => toggleFileSelection(file.id)}
-                          className={`flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-colors ${
-                            selectedFiles.has(file.id)
-                              ? "border-blue-500 bg-blue-50"
-                              : "border-gray-200 hover:border-gray-300"
-                          }`}
-                        >
-                          <div className="flex items-center space-x-3">
-                            <span className="text-2xl">
-                              {getFileIcon(file.mime_type)}
-                            </span>
-                            <div>
-                              <p className="text-sm font-medium text-gray-900">
-                                {file.display_name}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                {t("applicationForm.fileItem.uploaded")}{" "}
-                                {new Date(file.created_at).toLocaleDateString()}
-                              </p>
-                            </div>
+                      {/* Files list - both existing and local */}
+                      {(userFiles.length > 0 || localFiles.length > 0) && (
+                        <div className="space-y-2">
+                          <div className="grid gap-2">
+                            {/* Previously uploaded files */}
+                            {userFiles.map((file) => (
+                              <div
+                                key={file.id}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleFileSelection(file.id);
+                                }}
+                                className={`flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-colors ${selectedFiles.has(file.id)
+                                    ? "border-blue-500 bg-blue-50"
+                                    : "border-gray-200 hover:border-gray-300"
+                                  }`}
+                              >
+                                <div className="flex items-center space-x-3">
+                                  <span className="text-2xl">
+                                    {getFileIcon(file.mime_type)}
+                                  </span>
+                                  <div>
+                                    <p className="text-sm font-medium text-gray-900">
+                                      {file.display_name}
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                      {t("applicationForm.fileItem.uploaded")}{" "}
+                                      {new Date(
+                                        file.created_at,
+                                      ).toLocaleDateString()}
+                                    </p>
+                                  </div>
+                                </div>
+                                {selectedFiles.has(file.id) && (
+                                  <CheckCircle2 className="h-5 w-5 text-blue-500" />
+                                )}
+                              </div>
+                            ))}
+
+                            {/* Locally selected files */}
+                            {localFiles.map((file, index) => (
+                              <div
+                                key={`local-${index}`}
+                                className="flex items-center justify-between p-3 border border-green-500 bg-green-50 rounded-lg"
+                              >
+                                <div className="flex items-center space-x-3">
+                                  <span className="text-2xl">
+                                    {getFileIcon(file.type)}
+                                  </span>
+                                  <div>
+                                    <p className="text-sm font-medium text-gray-900">
+                                      {file.name}
+                                    </p>
+                                    <p className="text-xs text-green-600">
+                                      {t("applicationForm.fileItem.selected")}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <CheckCircle2 className="h-5 w-5 text-green-500" />
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      removeLocalFile(index);
+                                    }}
+                                    className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600"
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                            ))}
                           </div>
-                          {selectedFiles.has(file.id) && (
-                            <CheckCircle2 className="h-5 w-5 text-blue-500" />
-                          )}
                         </div>
-                      ))}
-
-                      {/* Locally selected files */}
-                      {localFiles.map((file, index) => (
-                        <div
-                          key={`local-${index}`}
-                          className="flex items-center justify-between p-3 border border-green-500 bg-green-50 rounded-lg"
-                        >
-                          <div className="flex items-center space-x-3">
-                            <span className="text-2xl">
-                              {getFileIcon(file.type)}
-                            </span>
-                            <div>
-                              <p className="text-sm font-medium text-gray-900">
-                                {file.name}
-                              </p>
-                              <p className="text-xs text-green-600">
-                                {t("applicationForm.fileItem.selected")}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <CheckCircle2 className="h-5 w-5 text-green-500" />
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeLocalFile(index)}
-                              className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600"
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {userFiles.length === 0 && localFiles.length === 0 && (
-                  <p className="text-center text-sm text-gray-500 py-8">
-                    {t("applicationForm.documentSelection.noDocuments")}
-                  </p>
-                )}
-
-                {/* Selected files summary */}
-                {allSelectedCount > 0 && (
-                  <div className="p-4 bg-blue-50 rounded-lg">
-                    <p className="text-sm text-blue-900">
-                      {t(
-                        "applicationForm.documentSelection.documentsSelected",
-                        {
-                          count: allSelectedCount,
-                        }
                       )}
-                    </p>
-                  </div>
-                )}
 
+                      {userFiles.length === 0 && localFiles.length === 0 && (
+                        <div className="grid place-items-center text-center text-sm text-gray-500 py-8 space-y-1">
+                          <Upload />
+                          <p>{t("applicationForm.documentSelection.dragAndDrop")}</p>
+                          <p>
+                            {t("applicationForm.documentSelection.noDocuments")}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Selected files summary */}
+                      {allSelectedCount > 0 && (
+                        <div className="p-4 bg-blue-50 rounded-lg">
+                          <p className="text-sm text-blue-900">
+                            {t(
+                              "applicationForm.documentSelection.documentsSelected",
+                              {
+                                count: allSelectedCount,
+                              },
+                            )}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </Dropzone>
                 {/* Additional Information Section */}
                 <div className="space-y-4 pt-6 border-t">
                   <div>

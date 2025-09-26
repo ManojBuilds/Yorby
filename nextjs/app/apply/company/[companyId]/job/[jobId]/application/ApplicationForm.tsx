@@ -322,7 +322,7 @@ export function ApplicationForm({
                   maxFiles={5}
                 >
                   {({ getInputProps, getRootProps, isDragActive }) => (
-                    <div {...getRootProps()} className="relative space-y-4">
+                    <div {...getRootProps()} className="relative flex flex-col gap-4">
                       {/* Upload new files section */}
                       <input {...getInputProps()} />
                       <div
@@ -331,7 +331,7 @@ export function ApplicationForm({
                           isDragActive && "opacity-100 z-10",
                         )}
                       >
-                        <Upload />
+                        <Upload className="w-5 h-5" />
                         <p className="text-sm text-center">{t("applicationForm.documentSelection.dragAndDrop")}</p>
                       </div>
 
@@ -416,7 +416,7 @@ export function ApplicationForm({
 
                       {userFiles.length === 0 && localFiles.length === 0 && (
                         <div className="grid place-items-center text-center text-sm text-gray-500 py-8 space-y-1">
-                          <Upload />
+                          <Upload className="w-5 h-5" />
                           <p>{t("applicationForm.documentSelection.dragAndDrop")}</p>
                           <p>
                             {t("applicationForm.documentSelection.noDocuments")}
